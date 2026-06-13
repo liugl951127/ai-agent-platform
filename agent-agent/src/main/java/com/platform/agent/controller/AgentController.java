@@ -5,6 +5,7 @@ import com.platform.agent.mapper.AgentInfoMapper;
 import com.platform.agent.service.AgentChatWithLockService;
 import com.platform.agent.service.AgentCreationService;
 import com.platform.agent.service.ReactExecutor;
+import com.platform.common.audit.AuditLog;
 import com.platform.common.core.R;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
-@Tag(name = "智能体管理", description = "CRUD + ReAct 推理 + 分布式事务 + 分布式锁")
+@Tag(name = "智能体管理", description = "CRUD + ReAct 推理 + 分布式事务 + 分布式锁 + 审计")
 @RestController
 @RequestMapping("/agent")
 @RequiredArgsConstructor
@@ -26,22 +27,26 @@ public class AgentController {
     @GetMapping("/list")
     public R<List<AgentInfo>> list() { return R.ok(mapper.selectList(null)); }
 
+    @AuditLog(module = "智能体", action = "CREATE", resourceType = "agent", resourceId = "#{#a.id}")
     @Operation(summary = "保存智能体(单服务事务)")
     @PostMapping("/save")
     public R<?> save(@RequestBody AgentInfo a) { return R.ok(mapper.insert(a)); }
 
+    @AuditLog(module = "智能体", action = "QUERY", resourceType = "agent", resourceId = "#{#agentId}")
     @Operation(summary = "智能体对话(ReAct 推理,带 Sentinel 限流)")
     @PostMapping("/chat")
     public R<String> chat(@RequestParam Long agentId, @RequestParam String input) {
         return R.ok(react.run(agentId, input));
     }
 
+    @AuditLog(module = "智能体", action = "CREATE_TX", resourceType = "agent", resourceId = "#{#agent.id}")
     @Operation(summary = "跨服务创建智能体(Seata 分布式事务)")
     @PostMapping("/create")
     public R<Long> createWithTx(@RequestBody AgentInfo agent) {
         return R.ok(creationService.createAgentWithConfig(agent));
     }
 
+    @AuditLog(module = "智能体", action = "QUERY", resourceType = "agent", resourceId = "#{#agentId}")
     @Operation(summary = "智能体对话(分布式锁 + Redisson 限流 + 计数)")
     @PostMapping("/chat/safe")
     public R<String> chatSafe(

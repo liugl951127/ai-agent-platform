@@ -1,0 +1,38 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+# 告警规则(可选)
+# rule_files:
+#   - "alert.rules.yml"
+
+# Alertmanager(可选)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets: ['alertmanager:9093']
+
+scrape_configs:
+  # Spring Boot Actuator 暴露的 /actuator/prometheus
+  - job_name: 'spring-boot'
+    metrics_path: '/actuator/prometheus'
+    scheme: http
+    static_configs:
+      - targets:
+          - 'agent-gateway:9000'
+          - 'agent-auth:9001'
+          - 'agent-llm:9002'
+          - 'agent-workflow:9003'
+          - 'agent-knowledge:9004'
+          - 'agent-agent:9005'
+          - 'agent-conversation:9006'
+          - 'agent-system:9007'
+        labels:
+          env: dev
+          cluster: agent-platform
+
+  # Prometheus 自身
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

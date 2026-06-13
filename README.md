@@ -67,6 +67,10 @@
 | 🛡️ **Sentinel 限流** | 网关 URI 维度 + 方法级 `@SentinelResource`,Dashboard 可视化 |
 | 🔗 **Seata 分布式事务** | AT 模式 + `@GlobalTransactional`,Feign 自动透传 XID |
 | 🔐 **Redisson 分布式工具** | 分布式锁(`@DistributedLock`)+ 令牌桶限流 + 原子计数 + Pub/Sub + 延迟队列 |
+| 🏢 **多租户隔离** | `TenantContext` + MyBatis 拦截器自动 `WHERE tenant_id=`,租户/用户/IP/RATIO 灰度策略 |
+| 📋 **操作审计** | `@AuditLog` AOP 自动记录 + 敏感字段脱敏 + async 写 JSON |
+| 🚦 **灰度发布** | `@GrayRelease` + 规则表(4 种策略)+ `GrayContext` 业务判断 |
+| 📈 **Prometheus + Grafana** | Actuator 端点 + 业务指标埋点 + 预置 dashboard JSON |
 | 🧪 **单元测试** | JUnit5 + Mockito + Reactor Test,核心 service 覆盖 |
 | 🐳 **一键部署** | `docker compose` 一键起中间件 + Sentinel Dashboard + Seata Server + 全套后端镜像 |
 

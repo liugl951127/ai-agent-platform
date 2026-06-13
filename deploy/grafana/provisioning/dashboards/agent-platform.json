@@ -1,0 +1,105 @@
+{
+  "title": "AI Agent Platform - Overview",
+  "uid": "agent-platform-overview",
+  "tags": ["agent", "spring", "ai"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "10s",
+  "time": { "from": "now-15m", "to": "now" },
+  "templating": { "list": [] },
+  "panels": [
+    {
+      "type": "stat",
+      "title": "QPS (HTTP)",
+      "id": 1,
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 0 },
+      "targets": [
+        { "expr": "sum(rate(http_server_requests_seconds_count[1m]))", "legendFormat": "req/s" }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "type": "stat",
+      "title": "P99 延迟",
+      "id": 2,
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 0 },
+      "targets": [
+        { "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket[5m])) by (le))", "legendFormat": "p99" },
+        { "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket[5m])) by (le))", "legendFormat": "p50" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "错误率",
+      "id": 3,
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 0 },
+      "targets": [
+        { "expr": "sum(rate(http_server_requests_seconds_count{status=~\"5..\"}[1m])) / sum(rate(http_server_requests_seconds_count[1m]))" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "JVM 内存",
+      "id": 4,
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 0 },
+      "targets": [
+        { "expr": "sum(jvm_memory_used_bytes{area=\"heap\"}) / sum(jvm_memory_max_bytes{area=\"heap\"})" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "智能体对话 QPS",
+      "id": 5,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 5 },
+      "targets": [
+        { "expr": "sum(rate(agent_chat_total[1m]))", "legendFormat": "QPS" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "智能体对话 P99 延迟",
+      "id": 6,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 5 },
+      "targets": [
+        { "expr": "histogram_quantile(0.99, sum(rate(agent_chat_latency_seconds_bucket[5m])) by (le))", "legendFormat": "p99" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "LLM 调用 (按 Provider)",
+      "id": 7,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 13 },
+      "targets": [
+        { "expr": "sum(rate(llm_call_total[1m])) by (provider)", "legendFormat": "{{provider}}" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "审计日志 (按模块)",
+      "id": 8,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 13 },
+      "targets": [
+        { "expr": "sum(rate(audit_log_total[1m])) by (module)", "legendFormat": "{{module}}" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "灰度命中 (按资源)",
+      "id": 9,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 21 },
+      "targets": [
+        { "expr": "sum(rate(gray_release_total[1m])) by (resource)", "legendFormat": "{{resource}}" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "JVM GC",
+      "id": 10,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 21 },
+      "targets": [
+        { "expr": "sum(rate(jvm_gc_pause_seconds_count[1m])) by (action)", "legendFormat": "{{action}}" }
+      ]
+    }
+  ]
+}
