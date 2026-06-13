@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  nacos:
+    image: nacos/nacos-server:v2.3.2
+    container_name: nacos
+    ports: ["8848:8848", "9848:9848"]
+    environment:
+      MODE: standalone
+      JVM_XMS: 512m
+      JVM_XMX: 512m
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    ports: ["3306:3306"]
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: agent_platform
+    volumes:
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./sql/data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis
+    ports: ["6379:6379"]
+    command: ["redis-server","--appendonly","yes"]
+    volumes:
+      - ./sql/redis-data:/data
+    restart: unless-stopped
+
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    container_name: es
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports: ["9200:9200"]
+    volumes:
+      - ./sql/es-data:/usr/share/elasticsearch/data
+    restart: unless-stopped

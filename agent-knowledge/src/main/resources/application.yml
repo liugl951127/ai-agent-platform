@@ -1,0 +1,13 @@
+server:
+  port: 9004
+spring:
+  application:
+    name: agent-knowledge
+  cloud:
+    nacos:
+      discovery: { server-addr: localhost:8848 }
+      config:   { server-addr: localhost:8848, file-extension: yaml }
+  elasticsearch:
+    uris: http://localhost:9200
+    connection-timeout: 5s
+    socket-timeout: 30s

@@ -1,0 +1,17 @@
+server:
+  port: 9003
+spring:
+  application:
+    name: agent-workflow
+  cloud:
+    nacos:
+      discovery: { server-addr: localhost:8848 }
+      config:   { server-addr: localhost:8848, file-extension: yaml }
+  datasource:
+    url: jdbc:mysql://localhost:3306/agent_platform?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+flowable:
+  database-schema-update: true
+  async-executor-activate: true

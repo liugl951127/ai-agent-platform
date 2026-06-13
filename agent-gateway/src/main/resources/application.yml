@@ -1,0 +1,45 @@
+server:
+  port: 9000
+spring:
+  application:
+    name: agent-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+      config:
+        server-addr: localhost:8848
+        file-extension: yaml
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: agent-auth
+          uri: lb://agent-auth
+          predicates: [Path=/auth/**]
+        - id: agent-system
+          uri: lb://agent-system
+          predicates: [Path=/system/**]
+        - id: agent-llm
+          uri: lb://agent-llm
+          predicates: [Path=/llm/**]
+        - id: agent-workflow
+          uri: lb://agent-workflow
+          predicates: [Path=/workflow/**]
+        - id: agent-knowledge
+          uri: lb://agent-knowledge
+          predicates: [Path=/knowledge/**]
+        - id: agent-conversation
+          uri: lb://agent-conversation
+          predicates: [Path=/chat/**]
+        - id: agent-agent
+          uri: lb://agent-agent
+          predicates: [Path=/agent/**]
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true

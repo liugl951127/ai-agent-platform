@@ -1,0 +1,47 @@
+# Build output
+target/
+build/
+out/
+*.class
+*.jar
+*.war
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.settings/
+.project
+.classpath
+.factorypath
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Node
+node_modules/
+dist/
+.npm
+.eslintcache
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+
+# Data volumes
+sql/data/
+sql/redis-data/
+sql/es-data/
