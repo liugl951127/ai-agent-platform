@@ -44,3 +44,28 @@ management:
   endpoint:
     health:
       show-details: always
+
+# Seata 分布式事务
+seata:
+  enabled: true
+  application-id: ${spring.application.name}
+  tx-service-group: agent-platform-tx-group
+  registry:
+    type: nacos
+    nacos:
+      server-addr: localhost:8848
+      group: SEATA_GROUP
+      namespace: ""
+      username: nacos
+      password: nacos
+  config:
+    type: nacos
+    nacos:
+      server-addr: localhost:8848
+      group: SEATA_GROUP
+      namespace: ""
+      dataId: seataServer.properties
+  service:
+    vgroup-mapping:
+      agent-platform-tx-group: default
+    disable-global-transaction: false

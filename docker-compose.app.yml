@@ -32,6 +32,30 @@ services:
     networks: [agent-net]
     restart: unless-stopped
 
+  # Seata Server (分布式事务协调器)
+  seata-server:
+    image: seataio/seata-server:2.0.0
+    container_name: seata-server
+    ports: ["8091:8091"]
+    environment:
+      SEATA_IP: seata-server
+      SEATA_PORT: 8091
+      STORE_MODE: file
+    # 进阶: 生产用 db 模式,需挂载 file.conf/registry.conf
+    # volumes:
+    #   - ./deploy/seata/conf:/seata-server/conf
+    networks: [agent-net]
+    depends_on: [nacos]
+    restart: unless-stopped
+
+  # Sentinel Dashboard (限流监控)
+  sentinel-dashboard:
+    image: bladex/sentinel-dashboard:1.8.6
+    container_name: sentinel-dashboard
+    ports: ["8080:8080"]
+    networks: [agent-net]
+    restart: unless-stopped
+
   mysql:
     image: mysql:8.0
     container_name: mysql

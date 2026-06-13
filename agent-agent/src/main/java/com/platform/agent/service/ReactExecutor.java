@@ -1,6 +1,8 @@
 package com.platform.agent.service;
 
 import cn.hutool.json.JSONUtil;
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.platform.agent.entity.AgentInfo;
 import com.platform.agent.entity.AgentTool;
@@ -22,6 +24,15 @@ public class ReactExecutor {
     private final AgentToolMapper toolMapper;
     private final LlmRouter llm;
 
+    /**
+     * ReAct 推理 - 方法级限流
+     * 资源名: agent:react:run
+     */
+    @SentinelResource(
+        value = "agent:react:run",
+        blockHandler = "runBlockHandler",
+        fallback = "runFallback"
+    )
     public String run(Long agentId, String userInput) {
         AgentInfo agent = agentMapper.selectById(agentId);
         // 1. RAG
@@ -78,6 +89,15 @@ public class ReactExecutor {
             }
         }
         return "推理超出最大步数";
+    }
+
+    public String runBlockHandler(Long agentId, String userInput, BlockException e) {
+        log.warn("智能体对话被限流: agentId={}", agentId);
+        return "⚠️ 智能体服务繁忙,请稍后再试";
+    }
+    public String runFallback(Long agentId, String userInput, Throwable e) {
+        log.error("智能体执行异常: agentId={}, err={}", agentId, e.getMessage());
+        return "智能体执行失败: " + e.getMessage();
     }
 
     private String invokeTool(String code, Map<?,?> args) {

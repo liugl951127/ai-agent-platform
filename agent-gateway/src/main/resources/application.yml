@@ -44,12 +44,32 @@ spring:
             allowedHeaders: "*"
             allowCredentials: true
 
+# Sentinel
+spring.cloud.sentinel:
+  transport:
+    port: 8719
+    dashboard: localhost:8080
+  filter:
+    enabled: true
+  scg:
+    fallback:
+      mode: response
+      response-status: 429
+      response-body: '{"code":429,"message":"网关限流:请求过于频繁,请稍后再试"}'
+  datasource:
+    flow:
+      nacos:
+        server-addr: localhost:8848
+        dataId: ${spring.application.name}-sentinel-rules
+        groupId: DEFAULT_GROUP
+        rule-type: gw-flow
+
 # Actuator (健康检查 / 指标暴露)
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health,info,metrics,gateway
   endpoint:
     health:
       show-details: always
