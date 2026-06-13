@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  =====================================================================
+  ⚠️ 父 POM 修复模板(给 Windows 本地项目参考)
+  =====================================================================
+  适用症状:
+    1) mvn install 报 "'dependencies.dependency.version' for xxx is missing"
+    2) Spring Cloud / Spring Cloud Alibaba / Redisson 子依赖找不到版本
+    3) hutool / jjwt / swagger-annotations-jakarta 报缺 version
+
+  原因:
+    Spring Boot 3.2.5 starter-parent 只管 spring-boot / jackson / tomcat 等官方依赖,
+    Spring Cloud、Alibaba、Redisson、hutool 等不在它的 dependencyManagement 里。
+    你必须在父 POM 自己 import 它们的 BOM。
+
+  使用方法:
+    1. 把下面这段 <properties> + <dependencyManagement> + <repositories>
+       整段覆盖你 Windows 项目父 pom.xml 的对应块
+    2. 把 groupId 改成你的(本模板是 com.platform, 你是 com.agent.platform)
+    3. 子模块 pom 里所有 <version>X.Y.Z</version> 该删的删
+       (这些依赖: nacos-discovery / nacos-config / redisson-spring-boot-starter /
+         jjwt-api/impl/jackson / swagger-annotations-jakarta / minio-java /
+         tika-* / spring-ai-* / hutool-all)
+    4. mvn clean install -U
+
+  兼容版本: Java 17 / Spring Boot 3.2.5 / Spring Cloud 2023.0.1
+  =====================================================================
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ★ 改成你的 groupId -->
+    <groupId>com.platform</groupId>
+    <artifactId>ai-agent-platform</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.5</version>
+        <relativePath/>
+    </parent>
+
+    <properties>
+        <java.version>17</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- ============ Spring Cloud 全家桶 ============ -->
+        <spring-cloud.version>2023.0.1</spring-cloud.version>
+        <spring-cloud-alibaba.version>2023.0.1.0</spring-cloud-alibaba.version>
+
+        <!-- ============ 显式指定版本的依赖(子模块不能写 version) ============ -->
+        <mybatis-plus.version>3.5.5</mybatis-plus.version>
+        <flowable.version>7.0.1</flowable.version>
+        <hutool.version>5.8.27</hutool.version>
+        <knife4j.version>4.5.0</knife4j.version>
+        <sentinel.version>1.8.6</sentinel.version>
+        <seata.version>2.0.0</seata.version>
+        <redisson.version>3.34.1</redisson.version>
+
+        <!-- 你项目里额外加的 -->
+        <minio.version>8.5.10</minio.version>
+        <tika.version>2.9.2</tika.version>
+        <spring-ai.version>1.0.0-M5</spring-ai.version>
+
+        <!-- 顺手加的 Surefire 显式版本,避免某些 Maven 版本报 Mojo 错 -->
+        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
+    </properties>
+
+    <modules>
+        <module>agent-common</module>
+        <module>agent-gateway</module>
+        <module>agent-auth</module>
+        <module>agent-system</module>
+        <module>agent-llm</module>
+        <module>agent-workflow</module>
+        <module>agent-knowledge</module>
+        <module>agent-conversation</module>
+        <module>agent-agent</module>
+        <!-- 你项目里额外的模块(没有就删) -->
+        <!-- <module>agent-file</module>
+        <module>agent-model</module>
+        <module>agent-tool</module>
+        <module>agent-monitor</module> -->
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- ★ 1. Spring Cloud BOM:管 spring-cloud-starter-* / loadbalancer / gateway / openfeign -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- ★ 2. Spring Cloud Alibaba BOM:管 nacos-discovery / nacos-config / sentinel / seata -->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${spring-cloud-alibaba.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- ★ 3. Redisson BOM(覆盖 SB 自带的 3.27.2, 阿里云镜像缺失) -->
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-bom</artifactId>
+                <version>${redisson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- ============ 显式列出版本(子模块删 version) ============ -->
+
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>${hutool.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.flowable</groupId>
+                <artifactId>flowable-spring-boot-starter</artifactId>
+                <version>${flowable.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+                <version>${knife4j.version}</version>
+            </dependency>
+
+            <!-- Sentinel 核心(不归 Spring Cloud Alibaba BOM 管) -->
+            <dependency>
+                <groupId>com.alibaba.csp</groupId>
+                <artifactId>sentinel-transport-simple-http</artifactId>
+                <version>${sentinel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.csp</groupId>
+                <artifactId>sentinel-annotation-aspectj</artifactId>
+                <version>${sentinel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.csp</groupId>
+                <artifactId>sentinel-datasource-nacos</artifactId>
+                <version>${sentinel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.csp</groupId>
+                <artifactId>sentinel-spring-cloud-gateway-adapter</artifactId>
+                <version>${sentinel.version}</version>
+            </dependency>
+
+            <!-- Seata -->
+            <dependency>
+                <groupId>io.seata</groupId>
+                <artifactId>seata-spring-boot-starter</artifactId>
+                <version>${seata.version}</version>
+            </dependency>
+
+            <!-- JJWT 0.12 (Spring Boot 3 + Jakarta) -->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>0.12.5</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>0.12.5</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
+                <version>0.12.5</version>
+            </dependency>
+
+            <!-- Swagger 注解(jakarta 版) -->
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations-jakarta</artifactId>
+                <version>2.2.22</version>
+            </dependency>
+
+            <!-- 你项目里用到的 -->
+            <dependency>
+                <groupId>io.minio</groupId>
+                <artifactId>minio-java</artifactId>
+                <version>${minio.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tika</groupId>
+                <artifactId>tika-core</artifactId>
+                <version>${tika.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tika</groupId>
+                <artifactId>tika-parsers-standard-package</artifactId>
+                <version>${tika.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
+                <version>${spring-ai.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+    <!-- Spring AI 用 Milestone 版,需要这个仓库 -->
+    <repositories>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+    </repositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <!-- 显式指定 Surefire 版本,避免某些 Maven 版本报 Mojo 错 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
