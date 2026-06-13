@@ -1,0 +1,164 @@
+version: '3.8'
+
+# =====================================================================
+# 完整编排:中间件 + 9 个微服务
+# 用法:
+#   1. 先构建镜像 (从仓库根目录):
+#        for m in agent-gateway agent-auth agent-llm agent-workflow \
+#                 agent-knowledge agent-agent agent-conversation agent-system; do
+#          docker build -t $m:latest -f $m/Dockerfile .
+#        done
+#   2. 启动:
+#        docker compose -f docker-compose.app.yml up -d
+#   3. 查看:
+#        docker compose -f docker-compose.app.yml ps
+#        docker compose -f docker-compose.app.yml logs -f agent-llm
+# =====================================================================
+
+networks:
+  agent-net:
+    driver: bridge
+
+services:
+  # -------- 中间件 --------
+  nacos:
+    image: nacos/nacos-server:v2.3.2
+    container_name: nacos
+    ports: ["8848:8848", "9848:9848"]
+    environment:
+      MODE: standalone
+      JVM_XMS: 512m
+      JVM_XMX: 512m
+    networks: [agent-net]
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    ports: ["3306:3306"]
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: agent_platform
+    volumes:
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql-data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks: [agent-net]
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis
+    ports: ["6379:6379"]
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    networks: [agent-net]
+    restart: unless-stopped
+
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    container_name: es
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports: ["9200:9200"]
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    networks: [agent-net]
+    restart: unless-stopped
+
+  # -------- 微服务 --------
+  agent-gateway:
+    image: agent-gateway:latest
+    build:
+      context: .
+      dockerfile: agent-gateway/Dockerfile
+    container_name: agent-gateway
+    ports: ["9000:9000"]
+    depends_on: [nacos, redis, mysql]
+    networks: [agent-net]
+    restart: unless-stopped
+
+  agent-auth:
+    image: agent-auth:latest
+    build:
+      context: .
+      dockerfile: agent-auth/Dockerfile
+    container_name: agent-auth
+    ports: ["9001:9001"]
+    depends_on: [nacos, redis, mysql]
+    networks: [agent-net]
+    restart: unless-stopped
+
+  agent-llm:
+    image: agent-llm:latest
+    build:
+      context: .
+      dockerfile: agent-llm/Dockerfile
+    container_name: agent-llm
+    ports: ["9002:9002"]
+    depends_on: [nacos, redis, mysql]
+    networks: [agent-net]
+    restart: unless-stopped
+
+  agent-workflow:
+    image: agent-workflow:latest
+    build:
+      context: .
+      dockerfile: agent-workflow/Dockerfile
+    container_name: agent-workflow
+    ports: ["9003:9003"]
+    depends_on: [nacos, redis, mysql]
+    networks: [agent-net]
+    restart: unless-stopped
+
+  agent-knowledge:
+    image: agent-knowledge:latest
+    build:
+      context: .
+      dockerfile: agent-knowledge/Dockerfile
+    container_name: agent-knowledge
+    ports: ["9004:9004"]
+    depends_on: [nacos, elasticsearch]
+    networks: [agent-net]
+    restart: unless-stopped
+
+  agent-agent:
+    image: agent-agent:latest
+    build:
+      context: .
+      dockerfile: agent-agent/Dockerfile
+    container_name: agent-agent
+    ports: ["9005:9005"]
+    depends_on: [nacos, redis, mysql, agent-llm, agent-knowledge]
+    networks: [agent-net]
+    restart: unless-stopped
+
+  agent-conversation:
+    image: agent-conversation:latest
+    build:
+      context: .
+      dockerfile: agent-conversation/Dockerfile
+    container_name: agent-conversation
+    ports: ["9006:9006"]
+    depends_on: [nacos, redis, mysql]
+    networks: [agent-net]
+    restart: unless-stopped
+
+  agent-system:
+    image: agent-system:latest
+    build:
+      context: .
+      dockerfile: agent-system/Dockerfile
+    container_name: agent-system
+    ports: ["9007:9007"]
+    depends_on: [nacos, redis, mysql]
+    networks: [agent-net]
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+  redis-data:
+  es-data:

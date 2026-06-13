@@ -43,3 +43,13 @@ spring:
             allowedMethods: "*"
             allowedHeaders: "*"
             allowCredentials: true
+
+# Actuator (健康检查 / 指标暴露)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always

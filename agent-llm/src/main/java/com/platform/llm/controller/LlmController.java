@@ -4,6 +4,9 @@ import com.platform.common.core.R;
 import com.platform.llm.entity.LlmModel;
 import com.platform.llm.mapper.LlmModelMapper;
 import com.platform.llm.service.LlmRouter;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +14,7 @@ import reactor.core.publisher.Flux;
 import java.util.List;
 import java.util.Map;
 
+@Tag(name = "大模型管理", description = "多 Provider 统一抽象:OpenAI / Ollama / Qwen / DeepSeek")
 @RestController
 @RequestMapping("/llm")
 @RequiredArgsConstructor
@@ -19,23 +23,29 @@ public class LlmController {
     private final LlmModelMapper modelMapper;
     private final LlmRouter llm;
 
+    @Operation(summary = "列出已注册的大模型")
     @GetMapping("/list")
     public R<List<LlmModel>> list() {
         return R.ok(modelMapper.selectList(null));
     }
 
+    @Operation(summary = "新增一个大模型")
     @PostMapping("/add")
     public R<?> add(@RequestBody LlmModel m) { return R.ok(modelMapper.insert(m)); }
 
+    @Operation(summary = "流式对话 (SSE)")
     @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> stream(@RequestParam Long modelId,
-                               @RequestBody List<Map<String,Object>> messages) {
+    public Flux<String> stream(
+            @Parameter(description = "模型 ID") @RequestParam Long modelId,
+            @RequestBody List<Map<String,Object>> messages) {
         return llm.streamById(modelId, messages);
     }
 
+    @Operation(summary = "非流式对话")
     @PostMapping("/chat")
-    public R<String> chat(@RequestParam Long modelId,
-                          @RequestBody List<Map<String,Object>> messages) {
+    public R<String> chat(
+            @Parameter(description = "模型 ID") @RequestParam Long modelId,
+            @RequestBody List<Map<String,Object>> messages) {
         return R.ok(llm.chatById(modelId, messages));
     }
 }
