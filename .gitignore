@@ -45,3 +45,11 @@ mvnw.cmd
 sql/data/
 sql/redis-data/
 sql/es-data/
+
+# CI / coverage
+coverage/
+*.lcov
+.nyc_output/
+
+# Spring
+HELP.md
