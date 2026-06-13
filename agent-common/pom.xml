@@ -74,6 +74,17 @@
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
         </dependency>
+        <!-- Redisson: 分布式锁/限流/集合/订阅 (覆盖 Spring Boot 自带的 3.27.2 BOM) -->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+            <!-- 版本由父 POM 的 redisson-bom 统一管理 (3.34.1) -->
+        </dependency>
+        <!-- AOP 切面支持 (用于 @DistributedLock) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
         <!-- Seata: 分布式事务 -->
         <dependency>
             <groupId>io.seata</groupId>

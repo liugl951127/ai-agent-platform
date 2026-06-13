@@ -66,6 +66,7 @@
 | 🎨 **现代前端** | Vue3.4 + Vite5 + Element Plus 2.7 + Pinia + Vue Router 4 |
 | 🛡️ **Sentinel 限流** | 网关 URI 维度 + 方法级 `@SentinelResource`,Dashboard 可视化 |
 | 🔗 **Seata 分布式事务** | AT 模式 + `@GlobalTransactional`,Feign 自动透传 XID |
+| 🔐 **Redisson 分布式工具** | 分布式锁(`@DistributedLock`)+ 令牌桶限流 + 原子计数 + Pub/Sub + 延迟队列 |
 | 🧪 **单元测试** | JUnit5 + Mockito + Reactor Test,核心 service 覆盖 |
 | 🐳 **一键部署** | `docker compose` 一键起中间件 + Sentinel Dashboard + Seata Server + 全套后端镜像 |
 
@@ -145,7 +146,7 @@ ai-agent-platform/
 | 类别 | 技术 |
 |---|---|
 | 后端框架 | Spring Boot 3.2.5 / Spring Cloud 2023.0.1 / Spring Cloud Alibaba 2023.0.1 |
-| 服务治理 | Nacos 2.3 / Spring Cloud Gateway / OpenFeign / Sentinel 1.8 / Seata 2.0 |
+| 服务治理 | Nacos 2.3 / Spring Cloud Gateway / OpenFeign / Sentinel 1.8 / Seata 2.0 / Redisson 3.34 |
 | 持久层 | MyBatis-Plus 3.5.5 / MySQL 8.0 / HikariCP |
 | 缓存 | Redis 7.2 (Spring Data Redis) |
 | 搜索引擎 | Elasticsearch 8.11 (Spring Data ES + NativeQuery) |

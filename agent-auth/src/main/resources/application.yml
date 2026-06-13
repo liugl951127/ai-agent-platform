@@ -75,3 +75,5 @@ seata:
     vgroup-mapping:
       agent-platform-tx-group: default
     disable-global-transaction: false
+
+# Redisson (由 agent-common 提供 starter + 自动配置)

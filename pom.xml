@@ -30,6 +30,7 @@
         <knife4j.version>4.5.0</knife4j.version>
         <sentinel.version>1.8.6</sentinel.version>
         <seata.version>2.0.0</seata.version>
+        <redisson.version>3.34.1</redisson.version>
     </properties>
 
     <modules>
@@ -57,6 +58,17 @@
                 <groupId>com.alibaba.cloud</groupId>
                 <artifactId>spring-cloud-alibaba-dependencies</artifactId>
                 <version>${spring-cloud-alibaba.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!--
+              覆盖 Spring Boot 3.2.5 自带的 redisson-bom:3.27.2 (阿里云镜像缺失)
+              提高到 3.34.1 (阿里云镜像可用,与 Spring Boot 3 / JDK 17 兼容)
+            -->
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-bom</artifactId>
+                <version>${redisson.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

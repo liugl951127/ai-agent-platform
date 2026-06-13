@@ -2,6 +2,7 @@ package com.platform.agent.controller;
 
 import com.platform.agent.entity.AgentInfo;
 import com.platform.agent.mapper.AgentInfoMapper;
+import com.platform.agent.service.AgentChatWithLockService;
 import com.platform.agent.service.AgentCreationService;
 import com.platform.agent.service.ReactExecutor;
 import com.platform.common.core.R;
@@ -11,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
-@Tag(name = "智能体管理", description = "CRUD + ReAct 推理 + 分布式事务创建")
+@Tag(name = "智能体管理", description = "CRUD + ReAct 推理 + 分布式事务 + 分布式锁")
 @RestController
 @RequestMapping("/agent")
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ public class AgentController {
     private final AgentInfoMapper mapper;
     private final ReactExecutor react;
     private final AgentCreationService creationService;
+    private final AgentChatWithLockService chatWithLock;
 
     @Operation(summary = "列出智能体")
     @GetMapping("/list")
@@ -38,5 +40,14 @@ public class AgentController {
     @PostMapping("/create")
     public R<Long> createWithTx(@RequestBody AgentInfo agent) {
         return R.ok(creationService.createAgentWithConfig(agent));
+    }
+
+    @Operation(summary = "智能体对话(分布式锁 + Redisson 限流 + 计数)")
+    @PostMapping("/chat/safe")
+    public R<String> chatSafe(
+            @RequestParam Long agentId,
+            @RequestHeader(value = "X-User-Id", defaultValue = "0") Long userId,
+            @RequestParam String input) {
+        return chatWithLock.chatWithLock(agentId, userId, input);
     }
 }
