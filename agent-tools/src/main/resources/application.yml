@@ -1,0 +1,34 @@
+server:
+  port: 9008
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: agent-tools
+  profiles:
+    active: dev
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+# 工具配置
+sql:
+  tool-enabled: false  # sql_query 默认关, 需要时改 true 并配 DataSource
+  allowed-tables: user,order,product,agent_info,llm_model
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+
+logging:
+  level:
+    com.platform: debug
+    org.springframework.web.reactive.function.client: warn

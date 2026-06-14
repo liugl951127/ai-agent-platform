@@ -2,6 +2,8 @@ package com.platform.agent.controller;
 
 import com.platform.agent.entity.AgentInfo;
 import com.platform.agent.mapper.AgentInfoMapper;
+import com.platform.agent.multi.AgentResponse;
+import com.platform.agent.multi.MultiAgentService;
 import com.platform.agent.service.AgentChatWithLockService;
 import com.platform.agent.service.AgentCreationService;
 import com.platform.agent.service.ReactExecutor;
@@ -12,8 +14,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
-@Tag(name = "智能体管理", description = "CRUD + ReAct 推理 + 分布式事务 + 分布式锁 + 审计")
+@Tag(name = "智能体管理", description = "CRUD + ReAct 推理 + 多智能体协作 + 分布式事务 + 分布式锁 + 审计")
 @RestController
 @RequestMapping("/agent")
 @RequiredArgsConstructor
@@ -22,6 +25,7 @@ public class AgentController {
     private final ReactExecutor react;
     private final AgentCreationService creationService;
     private final AgentChatWithLockService chatWithLock;
+    private final MultiAgentService multiAgent;
 
     @Operation(summary = "列出智能体")
     @GetMapping("/list")
@@ -54,5 +58,14 @@ public class AgentController {
             @RequestHeader(value = "X-User-Id", defaultValue = "0") Long userId,
             @RequestParam String input) {
         return chatWithLock.chatWithLock(agentId, userId, input);
+    }
+
+    @Operation(summary = "多智能体协作 (supervisor/group_chat)")
+    @PostMapping("/multi/run")
+    public R<AgentResponse> multiRun(@RequestBody Map<String, String> req) {
+        String mode = req.getOrDefault("mode", "supervisor");
+        String session = req.getOrDefault("sessionId", "default");
+        String input = req.getOrDefault("input", "");
+        return R.ok(multiAgent.run(mode, session, input));
     }
 }

@@ -36,6 +36,7 @@
         <sentinel.version>1.8.6</sentinel.version>
         <seata.version>2.0.0</seata.version>
         <redisson.version>3.34.1</redisson.version>
+        <hutool.version>5.8.27</hutool.version>
         <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
     </properties>
 
@@ -49,6 +50,7 @@
         <module>agent-knowledge</module>
         <module>agent-conversation</module>
         <module>agent-agent</module>
+        <module>agent-tools</module>
     </modules>
 
     <dependencyManagement>
@@ -83,6 +85,18 @@
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson</artifactId>
                 <version>${redisson.version}</version>
+            </dependency>
+
+            <!-- 工具能力中心 (agent-tools) 使用的库 -->
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>${hutool.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-math3</artifactId>
+                <version>3.6.1</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

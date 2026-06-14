@@ -69,3 +69,19 @@ seata:
     vgroup-mapping:
       agent-platform-tx-group: default
     disable-global-transaction: false
+
+# 多智能体 / 工具调用
+agent:
+  default-model-id: 1
+  tools:
+    base-url: http://localhost:9008
+    timeout-ms: 30000
+  reflection:
+    enabled: false
+    threshold: 7.0
+  multi-agent:
+    max-rounds: 5
+    supervisor:
+      max-steps: 8
+    group-chat:
+      max-rounds: 5
