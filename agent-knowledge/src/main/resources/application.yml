@@ -5,8 +5,10 @@ spring:
     name: agent-knowledge
   cloud:
     nacos:
-      discovery: { server-addr: localhost:8848 }
-      config:   { server-addr: localhost:8848, file-extension: yaml }
+      # 默认关闭 Nacos, 启动时不依赖. 需要时把 enabled: true 或传 --spring.cloud.nacos.discovery.enabled=true
+
+      discovery: { server-addr: localhost:8848, enabled: false }
+      config:   { server-addr: localhost:8848, file-extension: yaml, enabled: false }
   elasticsearch:
     uris: http://localhost:9200
     connection-timeout: 5s
