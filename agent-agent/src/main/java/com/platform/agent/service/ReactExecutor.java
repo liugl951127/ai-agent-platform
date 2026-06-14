@@ -6,15 +6,22 @@ import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.platform.agent.entity.AgentInfo;
 import com.platform.agent.entity.AgentTool;
+import com.platform.agent.feign.LlmFeignClient;
 import com.platform.agent.mapper.AgentInfoMapper;
 import com.platform.agent.mapper.AgentToolMapper;
-import com.platform.llm.service.LlmRouter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import java.util.*;
 
+/**
+ * ReAct 推理执行器 — 通过 Feign 远程调用 agent-llm
+ * <p>
+ * 之前的版本直接 import com.platform.llm.service.LlmRouter,导致 agent-agent
+ * 单跑时强依赖 agent-llm 编译产物。改为 Feign 后,即使 agent-llm 进程没起,
+ * 本服务也能起来(只是 /agent/chat 调用时会失败)。
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -22,12 +29,8 @@ public class ReactExecutor {
 
     private final AgentInfoMapper agentMapper;
     private final AgentToolMapper toolMapper;
-    private final LlmRouter llm;
+    private final LlmFeignClient llmFeign;
 
-    /**
-     * ReAct 推理 - 方法级限流
-     * 资源名: agent:react:run
-     */
     @SentinelResource(
         value = "agent:react:run",
         blockHandler = "runBlockHandler",
@@ -35,7 +38,7 @@ public class ReactExecutor {
     )
     public String run(Long agentId, String userInput) {
         AgentInfo agent = agentMapper.selectById(agentId);
-        // 1. RAG
+        // 1. RAG (HTTP 调 agent-knowledge)
         String context = "";
         if (agent.getKnowledgeId() != null) {
             try {
@@ -76,8 +79,16 @@ public class ReactExecutor {
 
         // 4. ReAct loop
         for (int i = 0; i < 5; i++) {
-            String reply = llm.chatById(agent.getModelId(), messages);
-            if (reply.contains("\"action\"")) {
+            String reply;
+            try {
+                // Feign 远程调 agent-llm
+                Map<String, Object> resp = llmFeign.chat(agent.getModelId(), messages);
+                reply = String.valueOf(resp.get("data"));
+            } catch (Exception e) {
+                log.error("调 LLM 失败: agentId={}, err={}", agentId, e.getMessage());
+                return "LLM 服务不可用: " + e.getMessage();
+            }
+            if (reply != null && reply.contains("\"action\"")) {
                 Map<?,?> act = JSONUtil.parse(reply).toBean(Map.class);
                 String tool = String.valueOf(act.get("action"));
                 Map<?,?> args = (Map<?,?>) act.get("args");

@@ -8,7 +8,39 @@
     </parent>
     <artifactId>agent-common</artifactId>
 
+    <!--
+      ============================================================
+      agent-common 依赖分层设计 (v2 - 独立服务可启动版)
+      ============================================================
+      所有依赖分两类:
+
+      1) 必选(不带 optional,子模块继承):
+         - spring-boot-starter-web       (REST 接口基座)
+         - spring-boot-starter-validation
+         - hutool-all                    (工具类)
+         - jjwt-*                        (JWT 鉴权基础)
+         - knife4j-*                     (API 文档)
+         - spring-boot-starter-aop       (@AspectJ 切面)
+         - spring-boot-starter-test      (测试基座)
+
+      2) 可选 (optional=true,子模块按需引用,不会传递):
+         - spring-boot-starter-data-redis         → 需 Redis 的服务引
+         - mybatis-plus-spring-boot3-starter      → 需 DB 的服务引
+         - sentinel-* / spring-cloud-starter-alibaba-sentinel → 需限流的服务引
+         - redisson-spring-boot-starter           → 需分布式锁的服务引
+         - seata-spring-boot-starter              → 需分布式事务的服务引
+         - micrometer-registry-prometheus         → 需 Prometheus 指标的服务引
+
+      这样:
+        - agent-system (不需 DB / Redis / Sentinel / Seata) 启动时
+          自动排除这些 jar,启动更快
+        - agent-knowledge (只引 ES,不要 MyBatis-Plus) 也不会被
+          MyBatis 干扰
+      ============================================================
+    -->
+
     <dependencies>
+        <!-- ★★★ 必选(所有子模块继承) ★★★ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -16,15 +48,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
-            <version>${mybatis-plus.version}</version>
         </dependency>
         <dependency>
             <groupId>cn.hutool</groupId>
@@ -48,59 +71,83 @@
             <version>0.12.5</version>
             <scope>runtime</scope>
         </dependency>
-        <!-- Knife4j (Swagger 增强 UI) -->
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
             <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
             <version>${knife4j.version}</version>
         </dependency>
-        <!-- Sentinel: 限流 / 熔断 -->
-        <dependency>
-            <groupId>com.alibaba.csp</groupId>
-            <artifactId>sentinel-transport-simple-http</artifactId>
-            <version>${sentinel.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba.csp</groupId>
-            <artifactId>sentinel-annotation-aspectj</artifactId>
-            <version>${sentinel.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba.csp</groupId>
-            <artifactId>sentinel-datasource-nacos</artifactId>
-            <version>${sentinel.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
-        </dependency>
-        <!-- Redisson: 分布式锁/限流/集合/订阅 (覆盖 Spring Boot 自带的 3.27.2 BOM) -->
-        <dependency>
-            <groupId>org.redisson</groupId>
-            <artifactId>redisson-spring-boot-starter</artifactId>
-            <!-- 版本由父 POM 的 redisson-bom 统一管理 (3.34.1) -->
-        </dependency>
-        <!-- AOP 切面支持 (用于 @DistributedLock) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
-        <!-- Seata: 分布式事务 -->
-        <dependency>
-            <groupId>io.seata</groupId>
-            <artifactId>seata-spring-boot-starter</artifactId>
-            <version>${seata.version}</version>
-        </dependency>
-        <!-- 单元测试 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- Micrometer + Prometheus (业务指标) -->
+
+        <!-- ★★★ 可选 (optional=true,不向下传递) ★★★ -->
+
+        <!-- Redis (agent-auth / agent-agent 等用) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- MyBatis-Plus (需要 DB 写操作的服务引,如 auth/llm/workflow/...) -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <version>${mybatis-plus.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Sentinel -->
+        <dependency>
+            <groupId>com.alibaba.csp</groupId>
+            <artifactId>sentinel-transport-simple-http</artifactId>
+            <version>${sentinel.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.csp</groupId>
+            <artifactId>sentinel-annotation-aspectj</artifactId>
+            <version>${sentinel.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.csp</groupId>
+            <artifactId>sentinel-datasource-nacos</artifactId>
+            <version>${sentinel.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Redisson -->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Seata -->
+        <dependency>
+            <groupId>io.seata</groupId>
+            <artifactId>seata-spring-boot-starter</artifactId>
+            <version>${seata.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Micrometer + Prometheus -->
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 </project>

@@ -8,8 +8,16 @@
     </parent>
     <artifactId>agent-system</artifactId>
 
+    <!--
+      agent-system 独立可启动
+      启动所需中间件: Nacos
+      启动命令: mvn -pl agent-system -am spring-boot:run
+      端口: 9007
+    -->
+
     <dependencies>
         <dependency><groupId>com.platform</groupId><artifactId>agent-common</artifactId><version>1.0.0</version></dependency>
+        <!-- Nacos -->
         <dependency><groupId>org.springframework.cloud</groupId><artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId></dependency>
         <dependency><groupId>org.springframework.cloud</groupId><artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId></dependency>
     </dependencies>

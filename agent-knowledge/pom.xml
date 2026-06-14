@@ -8,10 +8,22 @@
     </parent>
     <artifactId>agent-knowledge</artifactId>
 
+    <!--
+      agent-knowledge 独立可启动
+      启动所需中间件: Nacos + Elasticsearch
+      启动命令: mvn -pl agent-knowledge -am spring-boot:run
+      端口: 9004
+      注意: 不需要 MySQL / Redis / MyBatis-Plus
+    -->
+
     <dependencies>
         <dependency><groupId>com.platform</groupId><artifactId>agent-common</artifactId><version>1.0.0</version></dependency>
+
+        <!-- Elasticsearch 客户端 -->
+        <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-data-elasticsearch</artifactId></dependency>
+
+        <!-- Nacos -->
         <dependency><groupId>org.springframework.cloud</groupId><artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId></dependency>
         <dependency><groupId>org.springframework.cloud</groupId><artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId></dependency>
-        <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-data-elasticsearch</artifactId></dependency>
     </dependencies>
 </project>

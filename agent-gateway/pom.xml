@@ -8,11 +8,48 @@
     </parent>
     <artifactId>agent-gateway</artifactId>
 
+    <!--
+      agent-gateway 独立可启动
+      启动所需中间件: Nacos (Sentinel Dashboard 可选)
+      启动命令: mvn -pl agent-gateway -am spring-boot:run
+      端口: 9000
+      重要: Spring Cloud Gateway 基于 WebFlux, 跟 spring-boot-starter-web (Servlet) 冲突
+            排除 agent-common 里的 web starter
+    -->
+
     <dependencies>
+        <!--
+          agent-common 提供 JwtUtil / R 等类, 但它默认带 web starter
+          Gateway 必须排除 web, 否则启动报 "WebMvc vs WebFlux 冲突"
+        -->
+        <dependency>
+            <groupId>com.platform</groupId>
+            <artifactId>agent-common</artifactId>
+            <version>1.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-web</artifactId>
+                </exclusion>
+                <!-- Gateway 不需要 MyBatis / Redis -->
+                <exclusion>
+                    <groupId>com.baomidou</groupId>
+                    <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-data-redis</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Spring Cloud Gateway (WebFlux-based) -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>
         </dependency>
+
+        <!-- Nacos -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
@@ -21,6 +58,8 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
+
+        <!-- Loadbalancer / Bootstrap -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-loadbalancer</artifactId>
@@ -29,20 +68,11 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
         </dependency>
-        <!-- Sentinel 网关限流 -->
+
+        <!-- Sentinel 网关限流 (SCA BOM 管版本) -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-alibaba-sentinel-gateway</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba.csp</groupId>
-            <artifactId>sentinel-spring-cloud-gateway-adapter</artifactId>
-            <version>${sentinel.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.platform</groupId>
-            <artifactId>agent-common</artifactId>
-            <version>1.0.0</version>
         </dependency>
     </dependencies>
 </project>

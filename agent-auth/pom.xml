@@ -8,12 +8,28 @@
     </parent>
     <artifactId>agent-auth</artifactId>
 
+    <!--
+      agent-auth 独立可启动
+      启动所需中间件: Nacos + MySQL + Redis
+      启动命令: mvn -pl agent-auth -am spring-boot:run
+      端口: 9001
+    -->
+
     <dependencies>
         <dependency><groupId>com.platform</groupId><artifactId>agent-common</artifactId><version>1.0.0</version></dependency>
+
+        <!-- ★★ 显式补上 common 标为 optional 的依赖(本服务需要) ★★ -->
+        <!-- Redis: JWT token 缓存 / 验证码 -->
+        <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-data-redis</artifactId></dependency>
+        <!-- MyBatis-Plus: sys_user 表 -->
+        <dependency><groupId>com.baomidou</groupId><artifactId>mybatis-plus-spring-boot3-starter</artifactId><version>${mybatis-plus.version}</version></dependency>
+        <!-- MySQL 驱动 -->
+        <dependency><groupId>com.mysql</groupId><artifactId>mysql-connector-j</artifactId><scope>runtime</scope></dependency>
+        <!-- Security: BCrypt 密码编码 -->
         <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-security</artifactId></dependency>
+
+        <!-- Nacos 服务注册/发现/配置 -->
         <dependency><groupId>org.springframework.cloud</groupId><artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId></dependency>
         <dependency><groupId>org.springframework.cloud</groupId><artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId></dependency>
-        <dependency><groupId>com.baomidou</groupId><artifactId>mybatis-plus-spring-boot3-starter</artifactId><version>${mybatis-plus.version}</version></dependency>
-        <dependency><groupId>com.mysql</groupId><artifactId>mysql-connector-j</artifactId><scope>runtime</scope></dependency>
     </dependencies>
 </project>
