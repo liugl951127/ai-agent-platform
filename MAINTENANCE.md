@@ -128,3 +128,40 @@ feat(llm): 加 Qwen Provider
 fix(gateway): 修 JWT 过期返 500 应返 401
 docs(readme): 补 Docker 部署步骤
 ```
+
+## 7. agent-gateway 特殊处理 (WebFlux)
+
+`agent-gateway` 用的是 **Spring Cloud Gateway (WebFlux)**, 跟其他 7 个服务 (servlet) 不一样:
+
+| 注意点 | 处理方式 |
+|---|---|
+| 启动类不加 `@ComponentScan("com.platform.common")` | common 里的 `TenantInterceptor` / `AuditLogAspect` / `SentinelConfig` 都引用了 `jakarta.servlet.*`,WebFlux 启动时 cglib 增强这些类会 NoClassDefFoundError |
+| 显式 `@Import(JwtUtil.class)` 引入需要的 bean | 网关只用到 JwtUtil 校验 token, 不需要其他 servlet-based 拦截器 |
+| 鉴权走 WebFlux `GlobalFilter` | 不要写 `OncePerRequestFilter` (servlet) |
+| Redis / 分布式锁 | Redisson 有 webflux 适配 (不依赖 servlet), 但目前未在 gateway 启用, 按需引入 |
+
+**踩过的坑**:
+- 一开始给 gateway 加 `@ComponentScan("com.platform.common")` 启动失败: `NoClassDefFoundError: jakarta/servlet/http/HttpServletRequest`
+- 删除后,AuthFilter 找不到 JwtUtil → 用 `@Import(JwtUtil.class)` 解决
+
+
+## 8. agent-common 的 @ConditionalOnClass 保护清单
+
+`agent-common` 是共享库,被 8 个服务依赖。但各服务实际用到的子集不一样 (有的用 MyBatis-Plus, 有的用 Redisson, 有的用 Sentinel)。
+
+为了避免**没用到的服务因 class 引用了不存在的类而启动失败**, 以下类加了 `@ConditionalOnClass(name = "FQCN")` 保护:
+
+| 类 | 条件 | 说明 |
+|---|---|---|
+| `MybatisPlusConfig` | mybatis-plus 在 classpath | 分页插件 |
+| `MybatisMetaObjectHandler` | mybatis-plus 在 classpath | 自动填充 createTime / tenantId |
+| `RedissonConfig` | redisson 在 classpath | 反射初始化 RedissonClient (避免编译期 import) |
+| `RedissonUtil` | redisson-api 在 classpath | 分布式锁 / 限流工具 |
+| `DistributedLockAspect` | redisson-api 在 classpath | @DistributedLock 切面 |
+| `BusinessMetrics` | micrometer-core 在 classpath | 业务指标 (actuator) |
+
+**关键经验**:
+- `@ConditionalOnClass(Class<?>)` 会触发编译期依赖 (类必须存在)
+- 用 `@ConditionalOnClass(name = "FQCN")` 字符串形式 → 只在运行时检查, **编译期不需要 jar 存在**
+- 这样 common 标 `<optional>true</optional>` 才能真正生效
+

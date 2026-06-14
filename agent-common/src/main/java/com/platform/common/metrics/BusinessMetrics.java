@@ -1,6 +1,7 @@
 package com.platform.common.metrics;
 
 import io.micrometer.core.instrument.*;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
@@ -20,6 +21,7 @@ import java.util.concurrent.TimeUnit;
  *   - tenant_active_count        gauge     当前活跃租户数
  */
 @Component
+@ConditionalOnClass(name = "io.micrometer.core.instrument.MeterRegistry")
 public class BusinessMetrics {
 
     private final MeterRegistry registry;

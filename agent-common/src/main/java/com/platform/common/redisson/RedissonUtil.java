@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.*;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
@@ -24,6 +25,7 @@ import java.util.function.Supplier;
  */
 @Slf4j
 @Component
+@ConditionalOnClass(name = "org.redisson.api.RedissonClient")
 public class RedissonUtil {
 
     private final RedissonClient redisson;

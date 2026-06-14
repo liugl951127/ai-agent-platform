@@ -8,6 +8,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.EvaluationContext;
@@ -29,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 @Aspect
 @Component
 @RequiredArgsConstructor
+@ConditionalOnClass(name = "org.redisson.api.RedissonClient")
 public class DistributedLockAspect {
 
     private final RedissonClient redisson;

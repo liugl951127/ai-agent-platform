@@ -47,26 +47,42 @@
         <!-- Spring Cloud Gateway (WebFlux-based) -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-gateway</artifactId><version>4.1.1</version></dependency>
+            <artifactId>spring-cloud-starter-gateway</artifactId></dependency>
 
         <!-- Nacos -->
         <dependency>
-            <groupId>com.alibaba.cloud</groupId><artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId><version>2023.0.1.0</version></dependency>
+            <groupId>com.alibaba.cloud</groupId><artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId></dependency>
         <dependency>
-            <groupId>com.alibaba.cloud</groupId><artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId><version>2023.0.1.0</version></dependency>
+            <groupId>com.alibaba.cloud</groupId><artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId></dependency>
 
         <!-- Loadbalancer / Bootstrap -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-loadbalancer</artifactId><version>4.1.1</version></dependency>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId></dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-bootstrap</artifactId><version>4.1.1</version></dependency>
+            <artifactId>spring-cloud-starter-bootstrap</artifactId></dependency>
 
         <!-- Sentinel 网关限流 (SCA BOM 管版本) -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-alibaba-sentinel-gateway</artifactId>
+        </dependency>
+    
+        <!-- Actuator (供 BusinessMetrics 用 MeterRegistry) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+    
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+    
+        <dependency>
+            <groupId>com.alibaba.csp</groupId>
+            <artifactId>sentinel-datasource-nacos</artifactId>
         </dependency>
     </dependencies>
 </project>

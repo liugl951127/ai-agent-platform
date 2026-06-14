@@ -22,6 +22,11 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!--
+          Spring Cloud + Spring Cloud Alibaba 版本号
+          都用 calendar-based (如 2023.0.1)
+          Spring Boot 3.2.5 starter-parent 不会自动 import spring-cloud BOM, 需要手动
+        -->
         <spring-cloud.version>2023.0.1</spring-cloud.version>
         <spring-cloud-alibaba.version>2023.0.1.0</spring-cloud-alibaba.version>
         <mybatis-plus.version>3.5.5</mybatis-plus.version>
@@ -48,6 +53,7 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- ★ Spring Cloud BOM: 手动 import (SB starter-parent 不会自动 import) -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
@@ -55,6 +61,8 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!-- ★ Spring Cloud Alibaba BOM: 手动 import (SCA 不在 SB 里) -->
             <dependency>
                 <groupId>com.alibaba.cloud</groupId>
                 <artifactId>spring-cloud-alibaba-dependencies</artifactId>
