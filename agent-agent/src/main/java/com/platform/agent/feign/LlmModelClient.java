@@ -9,7 +9,7 @@ import java.util.Map;
  * 跨服务调用 agent-llm 的 Feign 客户端
  * (返回 Map 避免跨服务依赖 entity 类)
  */
-@FeignClient(name = "agent-llm", path = "/llm")
+@FeignClient(name = "agent-llm-models", path = "/llm", contextId = "llmModelClient")
 public interface LlmModelClient {
     @GetMapping("/list")
     Map<String, Object> list();

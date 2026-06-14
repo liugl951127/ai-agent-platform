@@ -14,7 +14,7 @@ import java.util.Map;
  * <p>
  * 即使 agent-llm 没启动,本服务的 /agent/chat 也能起 — 调用时会报错,但服务能起来
  */
-@FeignClient(name = "agent-llm", path = "/llm")
+@FeignClient(name = "agent-llm", path = "/llm", contextId = "llmFeignClient", fallback = LlmFeignClientFallback.class)
 public interface LlmFeignClient {
     @PostMapping("/chat")
     Map<String, Object> chat(@RequestParam("modelId") Long modelId,

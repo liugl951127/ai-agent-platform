@@ -11,7 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@ComponentScan(basePackages = {"com.platform.workflow","com.platform.common","org.flowable"})
+@ComponentScan(basePackages = {"com.platform.workflow","com.platform.common"})
 public class WorkflowApplication {
     public static void main(String[] args) {
         SpringApplication.run(WorkflowApplication.class, args);

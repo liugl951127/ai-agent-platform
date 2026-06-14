@@ -87,6 +87,28 @@
                 <version>${redisson.version}</version>
             </dependency>
 
+            <!-- Spring Cloud 组件 (显式指定版本, 避免 SC BOM 解析问题) -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-openfeign</artifactId>
+                <version>4.1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+                <version>4.1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-gateway</artifactId>
+                <version>4.1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-bootstrap</artifactId>
+                <version>4.1.1</version>
+            </dependency>
+
             <!-- 工具能力中心 (agent-tools) 使用的库 -->
             <dependency>
                 <groupId>cn.hutool</groupId>

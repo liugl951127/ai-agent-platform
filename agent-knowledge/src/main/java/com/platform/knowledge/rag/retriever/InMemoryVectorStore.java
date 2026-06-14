@@ -1,7 +1,6 @@
 package com.platform.knowledge.rag.retriever;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -9,17 +8,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- * 内存版向量存储 — 暴力余弦相似度
+ * 内存版向量存储 — 暴力余弦相似度 (默认实现)
  * <p>
  * 适合:
  *   - 单测 / 演示
  *   - 小规模知识库 (< 10w chunks)
  * <p>
- * 生产: 用 EsVectorStore (ES 8.x dense_vector + HNSW)
+ * 生产: 改用 EsVectorStore (ES 8.x dense_vector + HNSW) 时
+ *       在 application.yml 加 @Primary 覆盖本 bean
  */
 @Slf4j
 @Component
-@ConditionalOnMissingBean(Retriever.class)
 public class InMemoryVectorStore implements Retriever {
 
     /** id → {chunk, vector} */

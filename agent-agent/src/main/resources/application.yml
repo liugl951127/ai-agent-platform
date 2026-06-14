@@ -3,12 +3,14 @@ server:
 spring:
   application:
     name: agent-agent
+  main:
+    allow-bean-definition-overriding: true
   cloud:
     nacos:
       discovery: { server-addr: localhost:8848 }
       config:   { server-addr: localhost:8848, file-extension: yaml }
   datasource:
-    url: jdbc:mysql://localhost:3306/agent_platform?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://127.0.0.1:3306/agent_platform?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -69,6 +71,17 @@ seata:
     vgroup-mapping:
       agent-platform-tx-group: default
     disable-global-transaction: false
+
+# Feign 客户端降级
+feign:
+  circuitbreaker:
+    enabled: true
+  client:
+    config:
+      default:
+        connectTimeout: 3000
+        readTimeout: 5000
+        loggerLevel: basic
 
 # 多智能体 / 工具调用
 agent:

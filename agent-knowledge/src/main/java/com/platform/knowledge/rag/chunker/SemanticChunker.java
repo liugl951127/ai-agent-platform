@@ -1,5 +1,7 @@
 package com.platform.knowledge.rag.chunker;
 
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -16,6 +18,7 @@ import java.util.regex.Pattern;
  * <p>
  * 优点: 比固定字符切分更"语义完整", 检索召回率更高
  */
+@Component
 public class SemanticChunker {
 
     private static final int TARGET_SIZE = 500;

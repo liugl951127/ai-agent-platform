@@ -1,20 +1,18 @@
 package com.platform.knowledge.rag.rerank;
 
 import com.platform.knowledge.rag.retriever.RetrievedChunk;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 
 /**
- * 关键词加权重排 — 对每条候选计算 query 词命中数, 加权原始 score
+ * 关键词加权重排 — 对每条候选计算 query 词命中数, 加权原始 score (默认实现)
  * <p>
  * score_new = score * (1 + hits * 0.5)
  * <p>
  * 适合零依赖场景, 准确率比向量差, 但能"拉回"含 query 关键词但向量距离远的候选
  */
 @Component
-@ConditionalOnMissingBean(Reranker.class)
 public class KeywordBoostReranker implements Reranker {
 
     @Override
