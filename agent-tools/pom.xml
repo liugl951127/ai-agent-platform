@@ -41,12 +41,12 @@
             <version>5.8.27</version>
         </dependency>
 
-        <!-- Apache Commons Math (Calculator 表达式求值) -->
-        <dependency>
+        <!-- Apache Commons Math (备用) - 当前 Calculator 用自研 ExprEvaluator, 不引 -->
+        <!-- <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
             <version>3.6.1</version>
-        </dependency>
+        </dependency> -->
 
         <!-- AOP (工具切面 / 调用日志) -->
         <dependency>
