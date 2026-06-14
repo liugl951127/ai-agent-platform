@@ -109,13 +109,19 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- ★ 3. Redisson BOM(覆盖 SB 自带的 3.27.2, 阿里云镜像缺失) -->
+            <!-- ★ 3. Redisson ★★★ 不提供 BOM ★★★
+                (Maven Central 上查不到 redisson-bom 这个 artifact, 阿里云镜像也没)
+                必须显式锁版本(下面的 redisson-spring-boot-starter / redisson)
+            -->
             <dependency>
                 <groupId>org.redisson</groupId>
-                <artifactId>redisson-bom</artifactId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
                 <version>${redisson.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson</artifactId>
+                <version>${redisson.version}</version>
             </dependency>
 
             <!-- ============ 显式列出版本(子模块删 version) ============ -->

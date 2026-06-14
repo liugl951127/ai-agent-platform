@@ -63,15 +63,18 @@
                 <scope>import</scope>
             </dependency>
             <!--
-              覆盖 Spring Boot 3.2.5 自带的 redisson-bom:3.27.2 (阿里云镜像缺失)
-              提高到 3.34.1 (阿里云镜像可用,与 Spring Boot 3 / JDK 17 兼容)
+              ★ Redisson 不提供 BOM (redisson-bom artifact 在 Maven Central 根本不存在)
+              直接在下面显式锁 redisson-spring-boot-starter 等 artifact 的版本
             -->
             <dependency>
                 <groupId>org.redisson</groupId>
-                <artifactId>redisson-bom</artifactId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
                 <version>${redisson.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson</artifactId>
+                <version>${redisson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
