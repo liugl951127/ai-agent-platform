@@ -5,8 +5,31 @@
         <groupId>com.platform</groupId>
         <artifactId>ai-agent-platform</artifactId>
         <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>agent-common</artifactId>
+
+    <!--
+      agent-common 是 library,不是 Spring Boot 应用
+      需要在 build 阶段跳过 spring-boot-maven-plugin 的 repackage
+      (该插件要求 main class,library 没有)
+    -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>repackage</id>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
     <!--
       ============================================================

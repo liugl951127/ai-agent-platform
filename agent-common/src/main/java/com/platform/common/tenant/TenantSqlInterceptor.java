@@ -9,21 +9,20 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
 import java.sql.Connection;
 import java.util.Properties;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 多租户 MyBatis 拦截器
+ * 多租户 SQL 拦截器 — 经典 MyBatis 拦截器 API
  * <p>
+ * 通过 @Intercepts 注解挂到 StatementHandler.prepare 阶段。
  * 自动给所有 SELECT / UPDATE / DELETE 语句追加 WHERE tenant_id = ?
  * <p>
- * 用法: 在各服务的 MybatisPlusConfig 中注册:
- *   interceptor.addInnerInterceptor(new TenantSqlInterceptor());
+ * 用法: 在 MyBatis 配置中通过 SqlSessionFactoryBean.setPlugins() 注册
  * <p>
  * 跳过机制:
- *   - 当前线程未设置 TenantContext (跨线程 / 内部调用) → 跳过
+ *   - 当前线程未设置 TenantContext → 跳过
  *   - SQL 中已包含 tenant_id → 跳过(避免重复)
- *   - 主键 ID 查询(按 id)→ 不强制,只追加 where
+ *   - 非 SELECT/UPDATE/DELETE → 跳过
  */
 @Slf4j
 @Intercepts({
@@ -38,7 +37,6 @@ public class TenantSqlInterceptor implements Interceptor {
     public Object intercept(Invocation invocation) throws Throwable {
         Long tenantId = TenantContext.getTenantId();
         if (tenantId == null) {
-            // 没设置租户 → 不动 SQL(可能是内部调用 / 系统任务)
             return invocation.proceed();
         }
 
@@ -50,7 +48,6 @@ public class TenantSqlInterceptor implements Interceptor {
         BoundSql boundSql = handler.getBoundSql();
         String sql = boundSql.getSql();
         if (TENANT_ID_IN_SQL.matcher(sql).find()) {
-            // 已有 tenant_id,不动(可能业务自己写了)
             return invocation.proceed();
         }
         if (!isReadOrWriteSql(sql)) {
@@ -58,13 +55,13 @@ public class TenantSqlInterceptor implements Interceptor {
         }
 
         String newSql = appendTenantCondition(sql, tenantId);
-        // 改写 SQL
         meta.setValue("delegate.boundSql.sql", newSql);
         log.debug("TenantSqlInterceptor: rewrite SQL for tenantId={}: {}", tenantId, newSql);
         return invocation.proceed();
     }
 
     private boolean isReadOrWriteSql(String sql) {
+        if (sql == null || sql.length() < 6) return false;
         String head = sql.trim().substring(0, 6).toUpperCase();
         return head.startsWith("SELECT") || head.startsWith("UPDATE") || head.startsWith("DELETE");
     }

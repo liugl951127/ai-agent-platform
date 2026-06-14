@@ -42,7 +42,7 @@ public class RedissonConfig {
 
     @Bean(destroyMethod = "shutdown")
     @ConditionalOnMissingBean(RedissonClient.class)
-    public RedissonClient redissonClient() {
+    public RedissonClient redissonClient() throws java.io.IOException {
         Config config;
         if (customConfig != null && !customConfig.isBlank()) {
             // 优先用 yml 中 redisson.config 提供的 JSON / YAML
